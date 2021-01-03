@@ -9,6 +9,10 @@ edition = "2018"
 [dependencies]
 actix-web = "3"
 actix-rt = "1.1.1"
+# sqlx is currently on version 0.3.5 in this project due to breaking changes introduced in versions
+# beyond 0.4.0, which changed the return type of 'exectute' to a 'Done'. Also the row parsing related
+# traits have been altered. The overall architecture of this CRUD can still be reproduced with a
+# newer version of sqlx, and the version will be updated in the future.
 sqlx = { version = "0.3.5", features = ["mysql"] }
 serde = "1.0.117"
 serde_json = "1.0"
