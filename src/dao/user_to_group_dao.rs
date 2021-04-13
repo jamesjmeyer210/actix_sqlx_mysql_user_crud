@@ -90,12 +90,16 @@ impl JoinTable<User, Group> {
         .await
     }
 
-    pub async fn update_user_groups(&self, user: &User) -> Result<MySqlQueryResult, sqlx::Error> {
+    pub async fn update_user_groups(&self, user: &User) -> Result<u64, sqlx::Error> {
         if 0 == user.groups.len() {
-            self.delete_by_user_id(&user.id).await
+            self.delete_by_user_id(&user.id)
+                .await
+                .and_then(|result|{
+                    Ok(result.rows_affected())
+                })
         } else {
-            let deleted = self.delete_by_user_id(&user.id).await?;
-            let added = self.add_user_groups(&user.id, &user.groups).await?;
+            let deleted = self.delete_by_user_id(&user.id).await?.rows_affected();
+            let added = self.add_user_groups(&user.id, &user.groups).await?.rows_affected();
             Ok(added + deleted)
         }
     }

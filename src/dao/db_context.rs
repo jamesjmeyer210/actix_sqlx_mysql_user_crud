@@ -1,5 +1,5 @@
 use super::{Group, User};
-use sqlx::mysql::MySqlRow;
+use sqlx::mysql::{MySqlRow, MySqlPoolOptions};
 use sqlx::{FromRow, MySqlPool};
 use std::sync::Arc;
 
@@ -152,7 +152,11 @@ pub struct Database {
 
 impl Database {
     pub async fn new(sql_url: &str) -> Database {
-        let pool = MySqlPool::new(sql_url).await.unwrap();
+        let pool = MySqlPoolOptions::new()
+            .max_connections(8) // TODO: pass in the pool connection count
+            .connect(sql_url)
+            .await
+            .unwrap();
         let pool = Arc::new(pool);
 
         Database {
