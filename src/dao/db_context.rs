@@ -3,17 +3,17 @@ use sqlx::mysql::{MySqlRow, MySqlPoolOptions};
 use sqlx::{FromRow, MySqlPool};
 use std::sync::Arc;
 
-pub struct Table<'c, T>
+pub struct Table<'r, T>
     where
-        T: FromRow<'c, MySqlRow>,
+        T: FromRow<'r, MySqlRow>,
 {
     pub pool: Arc<MySqlPool>,
-    _from_row: fn(&MySqlRow) -> Result<T, sqlx::Error>,
+    _from_row: fn(&'r MySqlRow) -> Result<T, sqlx::Error>,
 }
 
-impl<'c, T> Table<'c, T>
+impl<'r, T> Table<'r, T>
     where
-        T: FromRow<'c, MySqlRow>,
+        T: FromRow<'r, MySqlRow>,
 {
     fn new(pool: Arc<MySqlPool>) -> Self {
         Table {
@@ -23,22 +23,22 @@ impl<'c, T> Table<'c, T>
     }
 }
 
-pub struct JoinTable<'c, T1, T2>
+pub struct JoinTable<'r, T1, T2>
     where
-        T1: FromRow<'c, MySqlRow>,
-        T2: FromRow<'c, MySqlRow>,
+        T1: FromRow<'r, MySqlRow>,
+        T2: FromRow<'r, MySqlRow>,
 {
     pub pool: Arc<MySqlPool>,
     _from_row: (
-        fn(&MySqlRow) -> Result<T1, sqlx::Error>,
-        fn(&MySqlRow) -> Result<T2, sqlx::Error>,
+        fn(&'r MySqlRow) -> Result<T1, sqlx::Error>,
+        fn(&'r MySqlRow) -> Result<T2, sqlx::Error>,
     ),
 }
 
-impl<'c, T1, T2> JoinTable<'c, T1, T2>
+impl<'r, T1, T2> JoinTable<'r, T1, T2>
     where
-        T1: FromRow<'c, MySqlRow>,
-        T2: FromRow<'c, MySqlRow>,
+        T1: FromRow<'r, MySqlRow>,
+        T2: FromRow<'r, MySqlRow>,
 {
     fn new(pool: Arc<MySqlPool>) -> Self {
         JoinTable {
@@ -48,10 +48,10 @@ impl<'c, T1, T2> JoinTable<'c, T1, T2>
     }
 }
 
-pub struct Database<'c> {
-    pub users: Arc<Table<'c, User>>,
-    pub groups: Arc<Table<'c, Group>>,
-    pub users_to_groups: Arc<JoinTable<'c, User, Group>>,
+pub struct Database<'r> {
+    pub users: Arc<Table<'r, User>>,
+    pub groups: Arc<Table<'r, Group>>,
+    pub users_to_groups: Arc<JoinTable<'r, User, Group>>,
 }
 
 impl Database<'_> {

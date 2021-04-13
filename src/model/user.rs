@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlRow;
 use sqlx::{FromRow, Row};
 
+// TODO: Try to use the #[derive(sqlx::FromRow)] here.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct User {
     pub id: String,
@@ -11,7 +12,7 @@ pub struct User {
     pub groups: Vec<Group>,
 }
 
-// impl<'c> FromRow<'c, MySqlRow<'c>> for User {
+// impl<'c> FromRow<'c, MySqlRow> for User {
 //     fn from_row(row: &MySqlRow) -> Result<Self, sqlx::Error> {
 //         Ok(User {
 //             id: row.get(0),
@@ -22,7 +23,7 @@ pub struct User {
 //     }
 // }
 
-impl<'c> FromRow<'c, MySqlRow> for User {
+impl FromRow<'_, MySqlRow> for User {
     fn from_row(row: &MySqlRow) -> Result<Self, sqlx::Error> {
         Ok(User {
             id: row.get(0),
