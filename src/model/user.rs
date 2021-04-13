@@ -11,7 +11,18 @@ pub struct User {
     pub groups: Vec<Group>,
 }
 
-impl<'c> FromRow<'c, MySqlRow<'c>> for User {
+// impl<'c> FromRow<'c, MySqlRow<'c>> for User {
+//     fn from_row(row: &MySqlRow) -> Result<Self, sqlx::Error> {
+//         Ok(User {
+//             id: row.get(0),
+//             name: row.get(1),
+//             email: row.get(2),
+//             groups: Vec::with_capacity(0),
+//         })
+//     }
+// }
+
+impl<'c> FromRow<'c, MySqlRow> for User {
     fn from_row(row: &MySqlRow) -> Result<Self, sqlx::Error> {
         Ok(User {
             id: row.get(0),

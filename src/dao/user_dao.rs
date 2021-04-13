@@ -2,7 +2,7 @@ use super::Table;
 use super::User;
 use sqlx::mysql::{MySqlQueryResult};
 
-impl<'c> Table<'c, User> {
+impl Table<User> {
     pub async fn drop_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query("DROP TABLE IF EXISTS users;")
             .execute(&*self.pool)
@@ -35,7 +35,7 @@ impl<'c> Table<'c, User> {
         .await
     }
 
-    pub async fn add_user(&self, user: &User) -> Result<u64, sqlx::Error> {
+    pub async fn add_user(&self, user: &User) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
             INSERT INTO users (`id`, `name`, `email`)
@@ -48,7 +48,7 @@ impl<'c> Table<'c, User> {
         .await
     }
 
-    pub async fn update_user(&self, user: &User) -> Result<u64, sqlx::Error> {
+    pub async fn update_user(&self, user: &User) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
             UPDATE users

@@ -3,7 +3,7 @@ use super::JoinTable;
 use super::User;
 use sqlx::mysql::MySqlQueryResult;
 
-impl<'c> JoinTable<'c, User, Group> {
+impl JoinTable<User, Group> {
     pub async fn create_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
@@ -30,9 +30,10 @@ impl<'c> JoinTable<'c, User, Group> {
         &self,
         user_id: &String,
         groups: &Vec<Group>,
-    ) -> Result<u64, sqlx::Error> {
+    ) -> Result<MySqlQueryResult, sqlx::Error> {
         if 0 == groups.len() {
-            Ok(0)
+            //Ok(0)
+            Ok(MySqlQueryResult::default())
         } else {
             let insert_statement = build_insert_statement(groups.len());
             let mut query = sqlx::query(&insert_statement);

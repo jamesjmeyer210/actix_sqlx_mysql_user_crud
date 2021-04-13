@@ -2,7 +2,7 @@ use super::Group;
 use super::Table;
 use sqlx::mysql::MySqlQueryResult;
 
-impl<'c> Table<'c, Group> {
+impl Table<Group> {
     pub async fn create_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
@@ -66,7 +66,7 @@ impl<'c> Table<'c, Group> {
         &self,
         current: &str,
         update: &str,
-    ) -> Result<u64, sqlx::Error> {
+    ) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
             UPDATE `groups`

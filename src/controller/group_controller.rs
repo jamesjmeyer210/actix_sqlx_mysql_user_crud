@@ -13,7 +13,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 #[get("/group/{id}")]
 async fn get_group_by_id(
     group_id: web::Path<u64>,
-    app_state: web::Data<AppState<'_>>,
+    app_state: web::Data<AppState>,
 ) -> impl Responder {
     log_request("GET: /group", &app_state.connections);
 
@@ -32,7 +32,7 @@ async fn get_group_by_id(
 #[post("/group")]
 async fn post_group(
     group: web::Json<String>,
-    app_state: web::Data<AppState<'_>>,
+    app_state: web::Data<AppState>,
 ) -> impl Responder {
     log_request("POST: /group", &app_state.connections);
 
@@ -64,7 +64,7 @@ pub struct GroupUpdate {
 #[patch("/group")]
 async fn patch_group_by_name(
     update: web::Json<GroupUpdate>,
-    app_state: web::Data<AppState<'_>>,
+    app_state: web::Data<AppState>,
 ) -> impl Responder {
     log_request("PATCH: /user", &app_state.connections);
 
@@ -83,14 +83,14 @@ async fn patch_group_by_name(
 #[delete("/group/{name}")]
 async fn delete_group_by_name(
     name: web::Path<String>,
-    app_state: web::Data<AppState<'_>>,
+    app_state: web::Data<AppState>,
 ) -> impl Responder {
     log_request("DELETE: /group", &app_state.connections);
 
     let x = app_state.context.groups.delete_group(name.as_str()).await;
 
     match x {
-        Err(e) => HttpResponse::InternalServerError().body(format!("Error: {}", e)),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Error: {:?}", e)),
         Ok(_) => HttpResponse::Ok().body(format!("Successfully deleted group {}", name)),
     }
 }

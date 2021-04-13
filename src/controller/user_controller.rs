@@ -3,6 +3,7 @@ use super::AppState;
 use crate::model::User;
 use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
 use uuid::Uuid;
+use actix_web::error::PayloadError::Http2Payload;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_user);
@@ -14,7 +15,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 #[get("/user/{id}")]
 async fn get_user(
     user_id: web::Path<String>,
-    app_state: web::Data<AppState<'_>>,
+    app_state: web::Data<AppState>,
 ) -> impl Responder {
     log_request("GET: /user", &app_state.connections);
 
@@ -43,7 +44,7 @@ async fn get_user(
 #[post("/user")]
 async fn post_user(
     user: web::Json<User>,
-    app_state: web::Data<AppState<'_>>,
+    app_state: web::Data<AppState>,
 ) -> impl Responder {
     log_request("POST: /user", &app_state.connections);
 
@@ -70,7 +71,7 @@ async fn post_user(
 #[patch("/user")]
 async fn patch_user(
     user: web::Json<User>,
-    app_state: web::Data<AppState<'_>>,
+    app_state: web::Data<AppState>,
 ) -> impl Responder {
     log_request("PATCH: /user", &app_state.connections);
 
@@ -78,16 +79,32 @@ async fn patch_user(
 
     let x = app_state.context.users.update_user(&user).await;
 
+    // match x {
+    //     Ok(0) => HttpResponse::NotFound().finish(),
+    //     Ok(_) => {
+    //         let _ = app_state
+    //             .context
+    //             .users_to_groups
+    //             .update_user_groups(&user)
+    //             .await;
+    //         HttpResponse::Accepted().json(user)
+    //     }
+    //     _ => HttpResponse::InternalServerError().finish(),
+    // }
     match x {
-        Ok(0) => HttpResponse::NotFound().finish(),
-        Ok(_) => {
-            let _ = app_state
-                .context
-                .users_to_groups
-                .update_user_groups(&user)
-                .await;
-            HttpResponse::Accepted().json(user)
-        }
+        Ok(result) => {
+            match result.rows_affected() {
+                0 => HttpResponse::NotFound().finish(),
+                _ => {
+                    let _ = app_state
+                        .context
+                        .users_to_groups
+                        .update_user_groups(&user)
+                        .await;
+                    HttpResponse::Accepted().json(user)
+                }
+            }
+        },
         _ => HttpResponse::InternalServerError().finish(),
     }
 }
@@ -95,15 +112,24 @@ async fn patch_user(
 #[delete("/user/{id}")]
 async fn delete_user(
     id: web::Path<String>,
-    app_state: web::Data<AppState<'_>>,
+    app_state: web::Data<AppState>,
 ) -> impl Responder {
     log_request("DELETE: /user", &app_state.connections);
 
     let x = app_state.context.users.delete_user(id.as_str()).await;
 
+    // match x {
+    //     Ok(0) => HttpResponse::NotFound().finish(),
+    //     Ok(_) => HttpResponse::Ok().finish(),
+    //     Err(_) => HttpResponse::InternalServerError().finish(),
+    // }
     match x {
-        Ok(0) => HttpResponse::NotFound().finish(),
-        Ok(_) => HttpResponse::Ok().finish(),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+        Ok(result) => {
+            match result.rows_affected() {
+                0 => HttpResponse::NotFound().finish(),
+                _ => HttpResponse::Ok().finish(),
+            }
+        },
+        Err(_) => HttpResponse::InternalServerError().finish()
     }
 }
