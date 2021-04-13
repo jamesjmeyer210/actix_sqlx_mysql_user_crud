@@ -1,10 +1,10 @@
 use super::Group;
 use super::JoinTable;
 use super::User;
-use sqlx::mysql::MySqlQueryAs;
+use sqlx::mysql::MySqlQueryResult;
 
 impl<'c> JoinTable<'c, User, Group> {
-    pub async fn create_table(&self) -> Result<u64, sqlx::Error> {
+    pub async fn create_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
             CREATE TABLE IF NOT EXISTS `users_to_groups`
@@ -20,7 +20,7 @@ impl<'c> JoinTable<'c, User, Group> {
         .await
     }
 
-    pub async fn drop_table(&self) -> Result<u64, sqlx::Error> {
+    pub async fn drop_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query("DROP TABLE IF EXISTS users_to_groups")
             .execute(&*self.pool)
             .await
@@ -63,7 +63,7 @@ impl<'c> JoinTable<'c, User, Group> {
         .await
     }
 
-    pub async fn delete_by_user_id(&self, user_id: &String) -> Result<u64, sqlx::Error> {
+    pub async fn delete_by_user_id(&self, user_id: &String) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
             DELETE
@@ -76,7 +76,7 @@ impl<'c> JoinTable<'c, User, Group> {
         .await
     }
 
-    pub async fn delete_by_group_id(&self, group_id: u64) -> Result<u64, sqlx::Error> {
+    pub async fn delete_by_group_id(&self, group_id: u64) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
             DELETE
@@ -89,7 +89,7 @@ impl<'c> JoinTable<'c, User, Group> {
         .await
     }
 
-    pub async fn update_user_groups(&self, user: &User) -> Result<u64, sqlx::Error> {
+    pub async fn update_user_groups(&self, user: &User) -> Result<MySqlQueryResult, sqlx::Error> {
         if 0 == user.groups.len() {
             self.delete_by_user_id(&user.id).await
         } else {

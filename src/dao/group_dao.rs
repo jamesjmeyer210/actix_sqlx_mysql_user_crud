@@ -1,9 +1,9 @@
 use super::Group;
 use super::Table;
-use sqlx::mysql::MySqlQueryAs;
+use sqlx::mysql::MySqlQueryResult;
 
 impl<'c> Table<'c, Group> {
-    pub async fn create_table(&self) -> Result<u64, sqlx::Error> {
+    pub async fn create_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
             CREATE TABLE IF NOT EXISTS `groups`
@@ -18,7 +18,7 @@ impl<'c> Table<'c, Group> {
         .await
     }
 
-    pub async fn drop_table(&self) -> Result<u64, sqlx::Error> {
+    pub async fn drop_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query("DROP TABLE IF EXISTS `groups`")
             .execute(&*self.pool)
             .await
@@ -50,7 +50,7 @@ impl<'c> Table<'c, Group> {
         .await
     }
 
-    pub async fn add_group(&self, name: &str) -> Result<u64, sqlx::Error> {
+    pub async fn add_group(&self, name: &str) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
             INSERT INTO `groups` (`name`)
@@ -80,7 +80,7 @@ impl<'c> Table<'c, Group> {
         .await
     }
 
-    pub async fn delete_group(&self, name: &str) -> Result<u64, sqlx::Error> {
+    pub async fn delete_group(&self, name: &str) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"
             DELETE FROM `groups`
