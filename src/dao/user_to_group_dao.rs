@@ -3,7 +3,7 @@ use super::JoinTable;
 use super::User;
 use sqlx::mysql::MySqlQueryResult;
 
-impl JoinTable<User, Group> {
+impl JoinTable<'_, User, Group> {
     pub async fn create_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"

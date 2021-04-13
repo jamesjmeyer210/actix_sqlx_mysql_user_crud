@@ -2,7 +2,7 @@ use super::Table;
 use super::User;
 use sqlx::mysql::{MySqlQueryResult};
 
-impl Table<User> {
+impl Table<'_, User> {
     pub async fn drop_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query("DROP TABLE IF EXISTS users;")
             .execute(&*self.pool)

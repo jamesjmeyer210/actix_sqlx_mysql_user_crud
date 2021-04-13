@@ -2,7 +2,7 @@ use super::Group;
 use super::Table;
 use sqlx::mysql::MySqlQueryResult;
 
-impl Table<Group> {
+impl Table<'_, Group> {
     pub async fn create_table(&self) -> Result<MySqlQueryResult, sqlx::Error> {
         sqlx::query(
             r#"

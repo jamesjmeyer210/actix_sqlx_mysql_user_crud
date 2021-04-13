@@ -3,7 +3,6 @@ use super::AppState;
 use crate::model::User;
 use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
 use uuid::Uuid;
-use actix_web::error::PayloadError::Http2Payload;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_user);
@@ -15,7 +14,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 #[get("/user/{id}")]
 async fn get_user(
     user_id: web::Path<String>,
-    app_state: web::Data<AppState>,
+    app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("GET: /user", &app_state.connections);
 
@@ -44,7 +43,7 @@ async fn get_user(
 #[post("/user")]
 async fn post_user(
     user: web::Json<User>,
-    app_state: web::Data<AppState>,
+    app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("POST: /user", &app_state.connections);
 
@@ -71,7 +70,7 @@ async fn post_user(
 #[patch("/user")]
 async fn patch_user(
     user: web::Json<User>,
-    app_state: web::Data<AppState>,
+    app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("PATCH: /user", &app_state.connections);
 
@@ -112,7 +111,7 @@ async fn patch_user(
 #[delete("/user/{id}")]
 async fn delete_user(
     id: web::Path<String>,
-    app_state: web::Data<AppState>,
+    app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("DELETE: /user", &app_state.connections);
 
