@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 actix-web = "3"
-actix-rt = "1.1.1"
+actix-rt = "2"
 # sqlx is currently on version 0.3.5 in this project due to breaking changes introduced in versions
 # beyond 0.4.0, which changed the return type of 'exectute' to a 'Done'. Also the row parsing related
 # traits have been altered. The overall architecture of this CRUD can still be reproduced with a
