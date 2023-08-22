@@ -41,10 +41,7 @@ async fn get_user(
 }
 
 #[post("/user")]
-async fn post_user(
-    user: web::Json<User>,
-    app_state: web::Data<AppState<'_>>,
-) -> impl Responder {
+async fn post_user(user: web::Json<User>, app_state: web::Data<AppState<'_>>) -> impl Responder {
     log_request("POST: /user", &app_state.connections);
 
     let mut user = user.into_inner();
@@ -68,10 +65,7 @@ async fn post_user(
 }
 
 #[patch("/user")]
-async fn patch_user(
-    user: web::Json<User>,
-    app_state: web::Data<AppState<'_>>,
-) -> impl Responder {
+async fn patch_user(user: web::Json<User>, app_state: web::Data<AppState<'_>>) -> impl Responder {
     log_request("PATCH: /user", &app_state.connections);
 
     let user = user.into_inner();
@@ -93,10 +87,7 @@ async fn patch_user(
 }
 
 #[delete("/user/{id}")]
-async fn delete_user(
-    id: web::Path<String>,
-    app_state: web::Data<AppState<'_>>,
-) -> impl Responder {
+async fn delete_user(id: web::Path<String>, app_state: web::Data<AppState<'_>>) -> impl Responder {
     log_request("DELETE: /user", &app_state.connections);
 
     let x = app_state.context.users.delete_user(id.as_str()).await;
