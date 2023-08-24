@@ -1,10 +1,9 @@
 use super::Group;
 use super::JoinTable;
 use super::User;
-use sqlx::mysql::MySqlQueryAs;
 
 impl<'c> JoinTable<'c, User, Group> {
-    pub async fn create_table(&self) -> Result<u64, sqlx::Error> {
+    pub async fn create_table(&self) -> Result<(), sqlx::Error> {
         sqlx::query(
             r#"
             CREATE TABLE IF NOT EXISTS `users_to_groups`
@@ -17,13 +16,17 @@ impl<'c> JoinTable<'c, User, Group> {
         "#,
         )
         .execute(&*self.pool)
-        .await
+        .await?;
+
+        Ok(())
     }
 
-    pub async fn drop_table(&self) -> Result<u64, sqlx::Error> {
+    pub async fn drop_table(&self) -> Result<(), sqlx::Error> {
         sqlx::query("DROP TABLE IF EXISTS users_to_groups")
             .execute(&*self.pool)
-            .await
+            .await?;
+
+        Ok(())
     }
 
     pub async fn add_user_groups(
@@ -41,14 +44,13 @@ impl<'c> JoinTable<'c, User, Group> {
                 query = query.bind(user_id).bind(group.id)
             }
 
-            query.execute(&*self.pool).await
+            let result = query.execute(&*self.pool).await?;
+
+            Ok(result.rows_affected())
         }
     }
 
-    pub async fn get_groups_by_user_id(
-        &self,
-        user_id: &String,
-    ) -> Result<Vec<Group>, sqlx::Error> {
+    pub async fn get_groups_by_user_id(&self, user_id: &String) -> Result<Vec<Group>, sqlx::Error> {
         sqlx::query_as(
             r#"
             select * from `groups` as `a`
@@ -64,7 +66,7 @@ impl<'c> JoinTable<'c, User, Group> {
     }
 
     pub async fn delete_by_user_id(&self, user_id: &String) -> Result<u64, sqlx::Error> {
-        sqlx::query(
+        let result = sqlx::query(
             r#"
             DELETE
             FROM `users_to_groups`
@@ -73,11 +75,13 @@ impl<'c> JoinTable<'c, User, Group> {
         )
         .bind(user_id)
         .execute(&*self.pool)
-        .await
+        .await?;
+
+        Ok(result.rows_affected())
     }
 
     pub async fn delete_by_group_id(&self, group_id: u64) -> Result<u64, sqlx::Error> {
-        sqlx::query(
+        let result = sqlx::query(
             r#"
             DELETE
             FROM `users_to_groups`
@@ -86,7 +90,9 @@ impl<'c> JoinTable<'c, User, Group> {
         )
         .bind(group_id)
         .execute(&*self.pool)
-        .await
+        .await?;
+
+        Ok(result.rows_affected())
     }
 
     pub async fn update_user_groups(&self, user: &User) -> Result<u64, sqlx::Error> {

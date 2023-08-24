@@ -76,7 +76,7 @@ async fn patch_group_by_name(
 
     match x {
         Err(e) => HttpResponse::InternalServerError().body(format!("Error: {}", e)),
-        Ok(_) => HttpResponse::Accepted().body(&update.new),
+        Ok(_) => HttpResponse::Accepted().body(update.new.clone()),
     }
 }
 

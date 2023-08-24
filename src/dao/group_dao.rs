@@ -1,9 +1,8 @@
 use super::Group;
 use super::Table;
-use sqlx::mysql::MySqlQueryAs;
 
 impl<'c> Table<'c, Group> {
-    pub async fn create_table(&self) -> Result<u64, sqlx::Error> {
+    pub async fn create_table(&self) -> Result<(), sqlx::Error> {
         sqlx::query(
             r#"
             CREATE TABLE IF NOT EXISTS `groups`
@@ -15,13 +14,17 @@ impl<'c> Table<'c, Group> {
         "#,
         )
         .execute(&*self.pool)
-        .await
+        .await?;
+
+        Ok(())
     }
 
-    pub async fn drop_table(&self) -> Result<u64, sqlx::Error> {
+    pub async fn drop_table(&self) -> Result<(), sqlx::Error> {
         sqlx::query("DROP TABLE IF EXISTS `groups`")
             .execute(&*self.pool)
-            .await
+            .await?;
+
+        Ok(())
     }
 
     pub async fn get_group_by_id(&self, id: u64) -> Result<Group, sqlx::Error> {
@@ -51,7 +54,7 @@ impl<'c> Table<'c, Group> {
     }
 
     pub async fn add_group(&self, name: &str) -> Result<u64, sqlx::Error> {
-        sqlx::query(
+        let result = sqlx::query(
             r#"
             INSERT INTO `groups` (`name`)
             VALUES (?)
@@ -59,15 +62,13 @@ impl<'c> Table<'c, Group> {
         )
         .bind(name)
         .execute(&*self.pool)
-        .await
+        .await?;
+
+        Ok(result.rows_affected())
     }
 
-    pub async fn update_group(
-        &self,
-        current: &str,
-        update: &str,
-    ) -> Result<u64, sqlx::Error> {
-        sqlx::query(
+    pub async fn update_group(&self, current: &str, update: &str) -> Result<u64, sqlx::Error> {
+        let result = sqlx::query(
             r#"
             UPDATE `groups`
             SET `name` = ?
@@ -77,11 +78,13 @@ impl<'c> Table<'c, Group> {
         .bind(update)
         .bind(current)
         .execute(&*self.pool)
-        .await
+        .await?;
+
+        Ok(result.rows_affected())
     }
 
     pub async fn delete_group(&self, name: &str) -> Result<u64, sqlx::Error> {
-        sqlx::query(
+        let result = sqlx::query(
             r#"
             DELETE FROM `groups`
             WHERE `name` = ?
@@ -89,6 +92,8 @@ impl<'c> Table<'c, Group> {
         )
         .bind(name)
         .execute(&*self.pool)
-        .await
+        .await?;
+
+        Ok(result.rows_affected())
     }
 }

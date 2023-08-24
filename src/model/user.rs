@@ -11,7 +11,7 @@ pub struct User {
     pub groups: Vec<Group>,
 }
 
-impl<'c> FromRow<'c, MySqlRow<'c>> for User {
+impl<'c> FromRow<'c, MySqlRow> for User {
     fn from_row(row: &MySqlRow) -> Result<Self, sqlx::Error> {
         Ok(User {
             id: row.get(0),
