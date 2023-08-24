@@ -1,7 +1,5 @@
 use super::{Group, User};
-use sqlx::mysql::MySql;
 use sqlx::mysql::MySqlRow;
-use sqlx::pool::Pool;
 use sqlx::{FromRow, MySqlPool};
 use std::marker::PhantomData;
 use std::sync::Arc;
@@ -11,7 +9,7 @@ where
     T: FromRow<'c, MySqlRow>,
 {
     pub pool: Arc<MySqlPool>,
-    _from_row: Box<dyn Fn(&'c MySqlRow) -> Result<T, sqlx::Error> + Send + Sync + 'c>,
+    _from_row: fn(&'c MySqlRow) -> Result<T, sqlx::Error>,
     _marker: PhantomData<&'c T>,
 }
 
@@ -22,7 +20,7 @@ where
     fn new(pool: Arc<MySqlPool>) -> Self {
         Table {
             pool,
-            _from_row: Box::new(|row| T::from_row(row)),
+            _from_row: T::from_row,
             _marker: PhantomData,
         }
     }
@@ -35,8 +33,8 @@ where
 {
     pub pool: Arc<MySqlPool>,
     _from_row: (
-        Box<dyn Fn(&'c MySqlRow) -> Result<T1, sqlx::Error> + Send + Sync + 'c>,
-        Box<dyn Fn(&'c MySqlRow) -> Result<T2, sqlx::Error> + Send + Sync + 'c>,
+        fn(&'c MySqlRow) -> Result<T1, sqlx::Error>,
+        fn(&'c MySqlRow) -> Result<T2, sqlx::Error>,
     ),
     _marker_t1: PhantomData<&'c T1>,
     _marker_t2: PhantomData<&'c T2>,
@@ -47,13 +45,10 @@ where
     T1: FromRow<'c, MySqlRow>,
     T2: FromRow<'c, MySqlRow>,
 {
-    fn new(pool: Arc<Pool<MySql>>) -> Self {
+    fn new(pool: Arc<MySqlPool>) -> Self {
         JoinTable {
             pool,
-            _from_row: (
-                Box::new(|row| T1::from_row(row)),
-                Box::new(|row| T2::from_row(row)),
-            ),
+            _from_row: (T1::from_row, T2::from_row),
             _marker_t1: PhantomData,
             _marker_t2: PhantomData,
         }
