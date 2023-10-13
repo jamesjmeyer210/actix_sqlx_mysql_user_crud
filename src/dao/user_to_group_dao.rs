@@ -16,17 +16,15 @@ impl<'c> JoinTable<'c, User, Group> {
         "#,
         )
         .execute(&*self.pool)
-        .await?;
-
-        Ok(())
+        .await
+        .map(|_|())
     }
 
     pub async fn drop_table(&self) -> Result<(), sqlx::Error> {
         sqlx::query("DROP TABLE IF EXISTS users_to_groups")
             .execute(&*self.pool)
-            .await?;
-
-        Ok(())
+            .await
+            .map(|_|())
     }
 
     pub async fn add_user_groups(
@@ -44,9 +42,9 @@ impl<'c> JoinTable<'c, User, Group> {
                 query = query.bind(user_id).bind(group.id)
             }
 
-            let result = query.execute(&*self.pool).await?;
-
-            Ok(result.rows_affected())
+            query.execute(&*self.pool)
+                .await
+                .map(|x|x.rows_affected())
         }
     }
 
@@ -66,7 +64,7 @@ impl<'c> JoinTable<'c, User, Group> {
     }
 
     pub async fn delete_by_user_id(&self, user_id: &String) -> Result<u64, sqlx::Error> {
-        let result = sqlx::query(
+        sqlx::query(
             r#"
             DELETE
             FROM `users_to_groups`
@@ -75,13 +73,12 @@ impl<'c> JoinTable<'c, User, Group> {
         )
         .bind(user_id)
         .execute(&*self.pool)
-        .await?;
-
-        Ok(result.rows_affected())
+        .await
+        .map(|x|x.rows_affected())
     }
 
     pub async fn delete_by_group_id(&self, group_id: u64) -> Result<u64, sqlx::Error> {
-        let result = sqlx::query(
+        sqlx::query(
             r#"
             DELETE
             FROM `users_to_groups`
@@ -90,9 +87,8 @@ impl<'c> JoinTable<'c, User, Group> {
         )
         .bind(group_id)
         .execute(&*self.pool)
-        .await?;
-
-        Ok(result.rows_affected())
+        .await
+        .map(|x|x.rows_affected())
     }
 
     pub async fn update_user_groups(&self, user: &User) -> Result<u64, sqlx::Error> {

@@ -5,9 +5,8 @@ impl<'c> Table<'c, User> {
     pub async fn drop_table(&self) -> Result<(), sqlx::Error> {
         sqlx::query("DROP TABLE IF EXISTS users;")
             .execute(&*self.pool)
-            .await?;
-
-        Ok(())
+            .await
+            .map(|_|())
     }
 
     pub async fn create_table(&self) -> Result<(), sqlx::Error> {
@@ -21,9 +20,8 @@ impl<'c> Table<'c, User> {
             )"#,
         )
         .execute(&*self.pool)
-        .await?;
-
-        Ok(())
+        .await
+        .map(|_|())
     }
 
     pub async fn get_user_by_id(&self, user_id: &str) -> Result<User, sqlx::Error> {
@@ -39,7 +37,7 @@ impl<'c> Table<'c, User> {
     }
 
     pub async fn add_user(&self, user: &User) -> Result<u64, sqlx::Error> {
-        let result = sqlx::query(
+        sqlx::query(
             r#"
             INSERT INTO users (`id`, `name`, `email`)
             VALUES(?, ?, ?)"#,
@@ -48,13 +46,12 @@ impl<'c> Table<'c, User> {
         .bind(&user.name)
         .bind(&user.email)
         .execute(&*self.pool)
-        .await?;
-
-        Ok(result.rows_affected())
+        .await
+        .map(|x|x.rows_affected())
     }
 
     pub async fn update_user(&self, user: &User) -> Result<u64, sqlx::Error> {
-        let result = sqlx::query(
+        sqlx::query(
             r#"
             UPDATE users
             SET `name` = ?, `email` = ?
@@ -65,13 +62,12 @@ impl<'c> Table<'c, User> {
         .bind(&user.email)
         .bind(&user.id)
         .execute(&*self.pool)
-        .await?;
-
-        Ok(result.rows_affected())
+        .await
+        .map(|x|x.rows_affected())
     }
 
     pub async fn delete_user(&self, user_id: &str) -> Result<u64, sqlx::Error> {
-        let result = sqlx::query(
+        sqlx::query(
             r#"
             DELETE FROM users
             WHERE `id` = ?
@@ -79,8 +75,7 @@ impl<'c> Table<'c, User> {
         )
         .bind(user_id)
         .execute(&*self.pool)
-        .await?;
-
-        Ok(result.rows_affected())
+        .await
+        .map(|x|x.rows_affected())
     }
 }
