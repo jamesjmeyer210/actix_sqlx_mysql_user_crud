@@ -1,6 +1,6 @@
 use super::{init_db_context, randomize_string};
 use sqlx;
-use sqlx_user_crud::model::{Group, User};
+use sqlx_user_crud::model::{Role, User};
 use uuid::Uuid;
 
 #[actix_rt::test]
@@ -18,9 +18,9 @@ async fn add_user_groups_returns_1_when_user_is_associated_with_group(
     let group = randomize_string("user");
 
     let _ = db.users.add_user(&user).await?;
-    let _ = db.groups.add_group(&group).await?;
+    let _ = db.groups.add_role(&group).await?;
 
-    let group = db.groups.get_group_by_name(&group).await?;
+    let group = db.groups.get_role_by_name(&group).await?;
     let groups = vec![group];
 
     let result = db.users_to_groups.add_user_groups(&user.id, &groups).await;
@@ -50,12 +50,12 @@ async fn add_user_groups_returns_3_when_user_is_associated_with_3_groups(
 
     let _ = db.users.add_user(&user).await?;
     for group_name in group_names.iter() {
-        let _ = db.groups.add_group(group_name).await?;
+        let _ = db.groups.add_role(group_name).await?;
     }
 
     let mut groups = Vec::with_capacity(3);
     for group_name in group_names.iter() {
-        let group = db.groups.get_group_by_name(group_name).await?;
+        let group = db.groups.get_role_by_name(group_name).await?;
         groups.push(group);
     }
 
@@ -77,7 +77,7 @@ async fn add_user_groups_returns_err_when_group_does_not_exist(
         email: randomize_string("charlie@email.com"),
         groups: Vec::with_capacity(0),
     };
-    let groups = vec![Group {
+    let groups = vec![Role {
         id: 0,
         name: String::from("non-existent"),
     }];
@@ -95,8 +95,8 @@ async fn add_user_groups_returns_err_when_user_does_not_exist() -> Result<(), sq
     let db = init_db_context().await;
 
     let group_name = randomize_string("hackers");
-    let _ = db.groups.add_group(&group_name).await?;
-    let group = db.groups.get_group_by_name(&group_name).await?;
+    let _ = db.groups.add_role(&group_name).await?;
+    let group = db.groups.get_role_by_name(&group_name).await?;
     let groups = vec![group];
 
     let result = db
@@ -120,8 +120,8 @@ async fn get_groups_by_user_id_returns_users_groups() -> Result<(), sqlx::Error>
 
     {
         let _ = db.users.add_user(&user).await?;
-        let _ = db.groups.add_group(&group).await?;
-        let group = db.groups.get_group_by_name(&group).await?;
+        let _ = db.groups.add_role(&group).await?;
+        let group = db.groups.get_role_by_name(&group).await?;
         let groups = vec![group];
         let _ = db
             .users_to_groups
@@ -173,8 +173,8 @@ async fn delete_by_user_id_returns_number_of_rows_deleted() -> Result<(), sqlx::
 
     {
         let _ = db.users.add_user(&user).await?;
-        let _ = db.groups.add_group(&group).await?;
-        let group = db.groups.get_group_by_name(&group).await?;
+        let _ = db.groups.add_role(&group).await?;
+        let group = db.groups.get_role_by_name(&group).await?;
         let groups = vec![group];
         let _ = db
             .users_to_groups
@@ -212,10 +212,10 @@ async fn delete_by_group_id_returns_number_of_rows_deleted() -> Result<(), sqlx:
 
     {
         let _ = db.users.add_user(&user).await?;
-        let _ = db.groups.add_group(&group).await?;
+        let _ = db.groups.add_role(&group).await?;
     }
 
-    let group = db.groups.get_group_by_name(&group).await?;
+    let group = db.groups.get_role_by_name(&group).await?;
     {
         let groups = vec![group.clone()];
         let _ = db
@@ -245,10 +245,10 @@ async fn update_user_groups_deletes_rows_when_users_group_vec_is_empty(
     let group_name = randomize_string("faculty");
     {
         let _ = db.users.add_user(&user).await?;
-        let _ = db.groups.add_group(&group_name).await?;
+        let _ = db.groups.add_role(&group_name).await?;
     }
 
-    let group = db.groups.get_group_by_name(&group_name).await?;
+    let group = db.groups.get_role_by_name(&group_name).await?;
     {
         let groups = vec![group.clone()];
         let _ = db
@@ -281,13 +281,13 @@ async fn update_user_groups_returns_deleted_plus_added_rows_when_groups_is_not_e
 
     {
         let _ = db.users.add_user(&user).await?;
-        let _ = db.groups.add_group(&group_names[0]).await?;
-        let _ = db.groups.add_group(&group_names[1]).await?;
+        let _ = db.groups.add_role(&group_names[0]).await?;
+        let _ = db.groups.add_role(&group_names[1]).await?;
     }
 
     let groups = vec![
-        db.groups.get_group_by_name(&group_names[0]).await?,
-        db.groups.get_group_by_name(&group_names[1]).await?,
+        db.groups.get_role_by_name(&group_names[0]).await?,
+        db.groups.get_role_by_name(&group_names[1]).await?,
     ];
     {
         let groups = vec![groups[0].clone()];

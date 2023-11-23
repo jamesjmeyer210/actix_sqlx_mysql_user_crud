@@ -1,8 +1,8 @@
-use super::Group;
+use super::Role;
 use super::Table;
 
-impl<'c> Table<'c, Group> {
-    pub async fn create_table(&self) -> Result<(), sqlx::Error> {
+impl<'c> Table<'c, Role> {
+    /*pub async fn create_table(&self) -> Result<(), sqlx::Error> {
         sqlx::query(
             r#"
             CREATE TABLE IF NOT EXISTS `groups`
@@ -23,12 +23,12 @@ impl<'c> Table<'c, Group> {
             .execute(&*self.pool)
             .await
             .map(|_|())
-    }
+    }*/
 
-    pub async fn get_group_by_id(&self, id: i32) -> Result<Group, sqlx::Error> {
+    pub async fn get_role_by_id(&self, id: i32) -> Result<Role, sqlx::Error> {
         sqlx::query_as(
             r#"
-            SELECT `id`, `name`
+            SELECT `id`, `max`, `name`
             FROM `groups`
             WHERE `id` = ?
         "#,
@@ -38,10 +38,10 @@ impl<'c> Table<'c, Group> {
         .await
     }
 
-    pub async fn get_group_by_name(&self, name: &str) -> Result<Group, sqlx::Error> {
+    pub async fn get_role_by_name(&self, name: &str) -> Result<Role, sqlx::Error> {
         sqlx::query_as(
             r#"
-            SELECT `id`, `name`
+            SELECT `id`, `max`, `name`
             FROM `groups`
             WHERE `name` = ?
         "#,
@@ -51,20 +51,21 @@ impl<'c> Table<'c, Group> {
         .await
     }
 
-    pub async fn add_group(&self, name: &str) -> Result<u64, sqlx::Error> {
+    pub async fn add_role(&self, name: &str, max: &Option<i32>) -> Result<u64, sqlx::Error> {
         sqlx::query(
             r#"
-            INSERT INTO `groups` (`name`)
-            VALUES (?)
+            INSERT INTO `groups` (`name`, `max`)
+            VALUES (?, ?)
         "#,
         )
         .bind(name)
+        .bind(max)
         .execute(&*self.pool)
         .await
         .map(|x|x.rows_affected())
     }
 
-    pub async fn update_group(&self, current: &str, update: &str) -> Result<u64, sqlx::Error> {
+    pub async fn update_role(&self, current: &str, update: &str) -> Result<u64, sqlx::Error> {
         sqlx::query(
             r#"
             UPDATE `groups`
@@ -79,7 +80,7 @@ impl<'c> Table<'c, Group> {
         .map(|x|x.rows_affected())
     }
 
-    pub async fn delete_group(&self, name: &str) -> Result<u64, sqlx::Error> {
+    pub async fn delete_role(&self, name: &str) -> Result<u64, sqlx::Error> {
         sqlx::query(
             r#"
             DELETE FROM `groups`

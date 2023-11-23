@@ -2,7 +2,7 @@ use super::{init_app_state, randomize_string};
 use actix_web::{http, test, App};
 use sqlx;
 use sqlx_user_crud::controller;
-use sqlx_user_crud::controller::group_controller::GroupUpdate;
+use sqlx_user_crud::controller::group_controller::RoleUpdate;
 
 #[actix_rt::test]
 async fn get_group_returns_404_when_not_found() -> () {
@@ -53,9 +53,9 @@ async fn patch_group_returns_204_when_group_is_patched() -> Result<(), sqlx::Err
     .await;
 
     let group_name = randomize_string("administrator");
-    let _ = app_state.context.groups.add_group(&group_name).await?;
+    let _ = app_state.context.groups.add_role(&group_name).await?;
 
-    let update = GroupUpdate {
+    let update = RoleUpdate {
         old: group_name,
         new: randomize_string("Administrator"),
     };
@@ -81,7 +81,7 @@ async fn delete_group_returns_200_when_group_is_deleted() -> Result<(), sqlx::Er
     .await;
 
     let group_name = randomize_string("developers");
-    let _ = app_state.context.groups.add_group(&group_name).await?;
+    let _ = app_state.context.groups.add_role(&group_name).await?;
 
     let req = test::TestRequest::delete()
         .uri(&format!("/group/{0}", group_name))

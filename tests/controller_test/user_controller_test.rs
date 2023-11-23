@@ -87,8 +87,8 @@ async fn post_user_returns_202_when_user_and_groups_are_valid() -> Result<(), sq
     .await;
 
     let group = randomize_string("custodians");
-    let _ = app_state.context.groups.add_group(&group).await?;
-    let group = app_state.context.groups.get_group_by_name(&group).await?;
+    let _ = app_state.context.groups.add_role(&group).await?;
+    let group = app_state.context.groups.get_role_by_name(&group).await?;
 
     let user = User {
         id: Uuid::new_v4().to_string(),

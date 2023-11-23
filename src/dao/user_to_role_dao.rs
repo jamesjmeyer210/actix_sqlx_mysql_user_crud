@@ -1,8 +1,8 @@
-use super::Group;
+use super::Role;
 use super::JoinTable;
 use super::User;
 
-impl<'c> JoinTable<'c, User, Group> {
+impl<'c> JoinTable<'c, User, Role> {
     pub async fn create_table(&self) -> Result<(), sqlx::Error> {
         sqlx::query(
             r#"
@@ -30,7 +30,7 @@ impl<'c> JoinTable<'c, User, Group> {
     pub async fn add_user_groups(
         &self,
         user_id: &String,
-        groups: &Vec<Group>,
+        groups: &Vec<Role>,
     ) -> Result<u64, sqlx::Error> {
         if 0 == groups.len() {
             Ok(0)
@@ -48,7 +48,7 @@ impl<'c> JoinTable<'c, User, Group> {
         }
     }
 
-    pub async fn get_groups_by_user_id(&self, user_id: &String) -> Result<Vec<Group>, sqlx::Error> {
+    pub async fn get_groups_by_user_id(&self, user_id: &String) -> Result<Vec<Role>, sqlx::Error> {
         sqlx::query_as(
             r#"
             select * from `groups` as `a`

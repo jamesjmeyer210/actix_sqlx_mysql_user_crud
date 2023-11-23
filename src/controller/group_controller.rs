@@ -4,15 +4,15 @@ use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 
 pub fn init(cfg: &mut web::ServiceConfig) {
-    cfg.service(get_group_by_id);
-    cfg.service(post_group);
-    cfg.service(patch_group_by_name);
-    cfg.service(delete_group_by_name);
+    cfg.service(get_role_by_id);
+    cfg.service(post_role);
+    cfg.service(patch_role_by_name);
+    cfg.service(delete_role_by_name);
 }
 
-#[get("/group/{id}")]
-async fn get_group_by_id(
-    group_id: web::Path<u64>,
+#[get("/role/{id}")]
+async fn get_role_by_id(
+    group_id: web::Path<i32>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("GET: /group", &app_state.connections);
@@ -20,7 +20,7 @@ async fn get_group_by_id(
     let x = app_state
         .context
         .groups
-        .get_group_by_id(group_id.into_inner())
+        .get_role_by_id(group_id.into_inner())
         .await;
 
     match x {
@@ -29,21 +29,22 @@ async fn get_group_by_id(
     }
 }
 
-#[post("/group")]
-async fn post_group(
+#[post("/role")]
+async fn post_role(
     group: web::Json<String>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("POST: /group", &app_state.connections);
 
-    let x = app_state.context.groups.add_group(group.as_str()).await;
+    let max: Option<i32> = None;
+    let x = app_state.context.groups.add_role(group.as_str(), &max).await;
 
     match x {
         Ok(_) => {
             let group = app_state
                 .context
                 .groups
-                .get_group_by_name(group.as_str())
+                .get_role_by_name(group.as_str())
                 .await;
 
             match group {
@@ -56,14 +57,14 @@ async fn post_group(
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct GroupUpdate {
+pub struct RoleUpdate {
     pub old: String,
     pub new: String,
 }
 
-#[patch("/group")]
-async fn patch_group_by_name(
-    update: web::Json<GroupUpdate>,
+#[patch("/role")]
+async fn patch_role_by_name(
+    update: web::Json<RoleUpdate>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("PATCH: /user", &app_state.connections);
@@ -71,7 +72,7 @@ async fn patch_group_by_name(
     let x = app_state
         .context
         .groups
-        .update_group(&update.old, &update.new)
+        .update_role(&update.old, &update.new)
         .await;
 
     match x {
@@ -80,14 +81,14 @@ async fn patch_group_by_name(
     }
 }
 
-#[delete("/group/{name}")]
-async fn delete_group_by_name(
+#[delete("/role/{name}")]
+async fn delete_role_by_name(
     name: web::Path<String>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("DELETE: /group", &app_state.connections);
 
-    let x = app_state.context.groups.delete_group(name.as_str()).await;
+    let x = app_state.context.groups.delete_role(name.as_str()).await;
 
     match x {
         Err(e) => HttpResponse::InternalServerError().body(format!("Error: {}", e)),

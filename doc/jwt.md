@@ -57,7 +57,6 @@ Some of these include:
 - **zoneinfo:** Time zone
 - **locale:** Locale
 - **phone_number_verified:** True if the phone number has been verified; otherwise false
-- **address:** Preferred postal address
 - **updated_at:** Time the information was last updated
 - **azp:** Authorized party - the party to which the ID Token was issued
 - **nonce:** Value used to associate a Client session with an ID Token (MAY also be used for nonce values in other applications of JWTs)

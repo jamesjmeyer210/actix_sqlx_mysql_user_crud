@@ -1,4 +1,4 @@
-use super::{Group, User};
+use super::{Role, User};
 use sqlx::{FromRow, SqlitePool};
 use std::marker::PhantomData;
 use std::sync::Arc;
@@ -56,9 +56,9 @@ where
 }
 
 pub struct Database<'c> {
-    pub groups: Arc<Table<'c, Group>>,
+    pub groups: Arc<Table<'c, Role>>,
     pub users: Arc<Table<'c, User>>,
-    pub users_to_groups: Arc<JoinTable<'c, User, Group>>,
+    pub users_to_groups: Arc<JoinTable<'c, User, Role>>,
 }
 
 impl<'a> Database<'a> {
