@@ -25,7 +25,7 @@ impl<'c> Table<'c, Group> {
             .map(|_|())
     }
 
-    pub async fn get_group_by_id(&self, id: u64) -> Result<Group, sqlx::Error> {
+    pub async fn get_group_by_id(&self, id: i32) -> Result<Group, sqlx::Error> {
         sqlx::query_as(
             r#"
             SELECT `id`, `name`

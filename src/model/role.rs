@@ -1,16 +1,17 @@
 use serde::{Deserialize, Serialize};
-use sqlx::mysql::MySqlRow;
+
 use sqlx::{FromRow, Row};
+use sqlx::sqlite::SqliteRow;
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
-pub struct Group {
-    pub id: u64,
+pub struct Role {
+    pub id: i32,
     pub name: String,
 }
 
-impl<'c> FromRow<'c, MySqlRow> for Group {
-    fn from_row(row: &MySqlRow) -> Result<Self, sqlx::Error> {
-        Ok(Group {
+impl<'c> FromRow<'c, SqliteRow> for Role {
+    fn from_row(row: &SqliteRow) -> Result<Self, sqlx::Error> {
+        Ok(Role {
             id: row.get(0),
             name: row.get(1),
         })

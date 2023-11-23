@@ -77,7 +77,7 @@ impl<'c> JoinTable<'c, User, Group> {
         .map(|x|x.rows_affected())
     }
 
-    pub async fn delete_by_group_id(&self, group_id: u64) -> Result<u64, sqlx::Error> {
+    pub async fn delete_by_group_id(&self, group_id: i32) -> Result<u64, sqlx::Error> {
         sqlx::query(
             r#"
             DELETE
