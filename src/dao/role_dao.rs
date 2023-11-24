@@ -2,34 +2,11 @@ use super::Role;
 use super::Table;
 
 impl<'c> Table<'c, Role> {
-    /*pub async fn create_table(&self) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            r#"
-            CREATE TABLE IF NOT EXISTS `groups`
-            (
-                `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `name` VARCHAR(64) NOT NULL UNIQUE,
-                PRIMARY KEY(id)
-            )
-        "#,
-        )
-        .execute(&*self.pool)
-        .await
-        .map(|_|())
-    }
-
-    pub async fn drop_table(&self) -> Result<(), sqlx::Error> {
-        sqlx::query("DROP TABLE IF EXISTS `groups`")
-            .execute(&*self.pool)
-            .await
-            .map(|_|())
-    }*/
-
     pub async fn get_role_by_id(&self, id: i32) -> Result<Role, sqlx::Error> {
         sqlx::query_as(
             r#"
             SELECT `id`, `max`, `name`
-            FROM `groups`
+            FROM `roles`
             WHERE `id` = ?
         "#,
         )
@@ -42,7 +19,7 @@ impl<'c> Table<'c, Role> {
         sqlx::query_as(
             r#"
             SELECT `id`, `max`, `name`
-            FROM `groups`
+            FROM `roles`
             WHERE `name` = ?
         "#,
         )
@@ -54,7 +31,7 @@ impl<'c> Table<'c, Role> {
     pub async fn add_role(&self, name: &str, max: &Option<i32>) -> Result<u64, sqlx::Error> {
         sqlx::query(
             r#"
-            INSERT INTO `groups` (`name`, `max`)
+            INSERT INTO `roles` (`name`, `max`)
             VALUES (?, ?)
         "#,
         )
@@ -68,7 +45,7 @@ impl<'c> Table<'c, Role> {
     pub async fn update_role(&self, current: &str, update: &str) -> Result<u64, sqlx::Error> {
         sqlx::query(
             r#"
-            UPDATE `groups`
+            UPDATE `roles`
             SET `name` = ?
             WHERE `name` = ?
         "#,
@@ -83,7 +60,7 @@ impl<'c> Table<'c, Role> {
     pub async fn delete_role(&self, name: &str) -> Result<u64, sqlx::Error> {
         sqlx::query(
             r#"
-            DELETE FROM `groups`
+            DELETE FROM `roles`
             WHERE `name` = ?
         "#,
         )

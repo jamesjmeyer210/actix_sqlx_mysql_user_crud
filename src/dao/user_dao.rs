@@ -2,28 +2,6 @@ use super::Table;
 use super::User;
 
 impl<'c> Table<'c, User> {
-    pub async fn drop_table(&self) -> Result<(), sqlx::Error> {
-        sqlx::query("DROP TABLE IF EXISTS users;")
-            .execute(&*self.pool)
-            .await
-            .map(|_|())
-    }
-
-    pub async fn create_table(&self) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            r#"
-            CREATE TABLE IF NOT EXISTS users (
-            id VARCHAR(48) NOT NULL UNIQUE,
-            name VARCHAR(64) NOT NULL UNIQUE,
-            email VARCHAR(256) NOT NULL UNIQUE,
-            PRIMARY KEY (id)
-            )"#,
-        )
-        .execute(&*self.pool)
-        .await
-        .map(|_|())
-    }
-
     pub async fn get_user_by_id(&self, user_id: &str) -> Result<User, sqlx::Error> {
         sqlx::query_as(
             r#"

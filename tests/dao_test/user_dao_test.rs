@@ -9,8 +9,12 @@ async fn add_user_returns_1() -> Result<(), sqlx::Error> {
     let user = User {
         id: Uuid::new_v4().to_string(),
         name: randomize_string("alice"),
-        email: randomize_string("alice@email.com"),
-        groups: Vec::with_capacity(0),
+        email: "alice@email.com".as_bytes().to_vec(),
+        email_verified: false,
+        phone: "111-222-3322".as_bytes().to_vec(),
+        phone_verified: false,
+        public_key: Vec::new(),
+        groups: Vec::new(),
     };
 
     let result = db.users.add_user(&user).await;
@@ -29,19 +33,8 @@ async fn add_user_returns_err_when_duplicate_username_is_added(
     let name = randomize_string("bob");
     let email = randomize_string("bob@emai.com");
 
-    let original = User {
-        id: Uuid::new_v4().to_string(),
-        name: name.clone(),
-        email: email.clone(),
-        groups: Vec::with_capacity(0),
-    };
-
-    let duplicate = User {
-        id: Uuid::new_v4().to_string(),
-        name: name.clone(),
-        email: email.clone(),
-        groups: Vec::with_capacity(0),
-    };
+    let original = User::new("bob", "bob@email.com", "111-222-3344");
+    let duplicate = User::new("bob", "bob@email.com", "111-222-3344");
 
     let result = db.users.add_user(&original).await?;
     assert_eq!(1, result);
@@ -66,12 +59,7 @@ async fn get_user_by_id_returns_error_when_user_does_not_exist() -> () {
 async fn get_user_by_id_returns_user_when_user_exists() -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
 
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("charlie"),
-        email: randomize_string("charlie@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("charlie", "charlie@email.com", "111-222-3344");
 
     let _ = db.users.add_user(&user).await?;
 
@@ -87,12 +75,7 @@ async fn get_user_by_id_returns_user_when_user_exists() -> Result<(), sqlx::Erro
 async fn update_user_returns_zero_when_user_does_not_exist() -> () {
     let db = init_db_context().await;
 
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("david"),
-        email: randomize_string("david@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("david", "david@email.com", "111-222-3344");
 
     let result = db.users.update_user(&user).await;
     assert!(result.is_ok());
@@ -104,17 +87,12 @@ async fn update_user_returns_zero_when_user_does_not_exist() -> () {
 async fn update_user_returns_1_when_user_exists() -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
 
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("emily"),
-        email: randomize_string("emily@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("emily", "emily@email.com", "111-222-3344");
 
     let _ = db.users.add_user(&user).await?;
 
     let mut updated_user = user.clone();
-    updated_user.email = randomize_string("emily_edison");
+    updated_user.email = "emily_edison@email.com".as_bytes().to_vec();
 
     let result = db.users.update_user(&updated_user).await;
     assert!(result.is_ok());
@@ -138,12 +116,7 @@ async fn delete_user_returns_0_when_user_does_not_exist() -> () {
 async fn delete_user_returns_1_when_user_exists() -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
 
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("gary"),
-        email: randomize_string("gary@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("gary", "gary@email.com", "111-222-3344");
 
     let _ = db.users.add_user(&user).await?;
 

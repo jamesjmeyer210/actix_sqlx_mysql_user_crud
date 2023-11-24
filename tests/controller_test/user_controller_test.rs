@@ -34,7 +34,11 @@ async fn get_user_returns_200_when_user_exists() -> Result<(), sqlx::Error> {
     let user = User {
         id: Uuid::new_v4().to_string(),
         name: randomize_string("alice"),
-        email: randomize_string("alice@email.com"),
+        email: "alice@email.com".as_bytes().to_vec(),
+        email_verified: false,
+        phone: "111-222-3322".as_bytes().to_vec(),
+        phone_verified: false,
+        public_key: Vec::new(),
         groups: Vec::new(),
     };
 
@@ -62,7 +66,11 @@ async fn post_user_returns_202_when_user_is_valid() -> () {
     let user = User {
         id: Uuid::new_v4().to_string(),
         name: randomize_string("bob"),
-        email: randomize_string("bob@email.com"),
+        email: "bob@email.com".as_bytes().to_vec(),
+        email_verified: false,
+        phone: "111-222-3322".as_bytes().to_vec(),
+        phone_verified: false,
+        public_key: Vec::new(),
         groups: Vec::new(),
     };
 
@@ -92,9 +100,13 @@ async fn post_user_returns_202_when_user_and_groups_are_valid() -> Result<(), sq
 
     let user = User {
         id: Uuid::new_v4().to_string(),
-        name: randomize_string("bob"),
-        email: randomize_string("bob@email.com"),
-        groups: vec![group],
+        name: randomize_string("alice"),
+        email: "alice@email.com".as_bytes().to_vec(),
+        email_verified: false,
+        phone: "111-222-3322".as_bytes().to_vec(),
+        phone_verified: false,
+        public_key: Vec::new(),
+        groups: Vec::new(),
     };
 
     let req = test::TestRequest::post()
@@ -120,8 +132,12 @@ async fn post_user_returns_500_when_user_already_exists() -> Result<(), sqlx::Er
     let user = User {
         id: Uuid::new_v4().to_string(),
         name: randomize_string("charlie"),
-        email: randomize_string("charlie@email.com"),
-        groups: vec![],
+        email: "charlie@email.com".as_bytes().to_vec(),
+        email_verified: false,
+        phone: "111-222-3322".as_bytes().to_vec(),
+        phone_verified: false,
+        public_key: Vec::new(),
+        groups: Vec::new(),
     };
 
     let _ = app_state.context.users.add_user(&user).await?;
@@ -149,8 +165,12 @@ async fn patch_user_returns_404_when_user_does_not_exist() -> () {
     let user = User {
         id: Uuid::new_v4().to_string(),
         name: randomize_string("edison"),
-        email: randomize_string("edison@email.com"),
-        groups: vec![],
+        email: "edison@email.com".as_bytes().to_vec(),
+        email_verified: false,
+        phone: "111-222-3322".as_bytes().to_vec(),
+        phone_verified: false,
+        public_key: Vec::new(),
+        groups: Vec::new(),
     };
 
     let req = test::TestRequest::patch()
@@ -175,12 +195,16 @@ async fn patch_user_returns_202_when_user_exists() -> Result<(), sqlx::Error> {
     let mut user = User {
         id: Uuid::new_v4().to_string(),
         name: randomize_string("fred"),
-        email: randomize_string("fred@email.com"),
-        groups: vec![],
+        email: "fred@email.com".as_bytes().to_vec(),
+        email_verified: false,
+        phone: "111-222-3322".as_bytes().to_vec(),
+        phone_verified: false,
+        public_key: Vec::new(),
+        groups: Vec::new(),
     };
     let _ = app_state.context.users.add_user(&user).await?;
 
-    user.name = randomize_string("fredrick");
+    user.name = "fredrick".to_string();
     let req = test::TestRequest::patch()
         .uri("/user")
         .set_json(&user)
@@ -224,8 +248,12 @@ async fn delete_user_returns_200_when_user_exists() -> Result<(), sqlx::Error> {
     let user = User {
         id: Uuid::new_v4().to_string(),
         name: randomize_string("gina"),
-        email: randomize_string("gina@email.com"),
-        groups: vec![],
+        email: "gina@email.com".as_bytes().to_vec(),
+        email_verified: false,
+        phone: "111-222-3322".as_bytes().to_vec(),
+        phone_verified: false,
+        public_key: Vec::new(),
+        groups: Vec::new(),
     };
     let _ = app_state.context.users.add_user(&user).await?;
 

@@ -8,12 +8,7 @@ async fn add_user_groups_returns_1_when_user_is_associated_with_group(
 ) -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
 
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("alice"),
-        email: randomize_string("alice@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("alice", "alice@email.com", "111-222-3344");
 
     let group = randomize_string("user");
 
@@ -35,12 +30,7 @@ async fn add_user_groups_returns_3_when_user_is_associated_with_3_groups(
 ) -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
 
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("bob"),
-        email: randomize_string("bob@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("bob", "bob@email.com", "111-222-3344");
 
     let group_names = vec![
         randomize_string("engineer"),
@@ -71,12 +61,7 @@ async fn add_user_groups_returns_err_when_group_does_not_exist(
 ) -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
 
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("charlie"),
-        email: randomize_string("charlie@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("charlie", "charlie@email.com", "111-222-3344");
     let groups = vec![Role {
         id: 0,
         max: None,
@@ -111,12 +96,7 @@ async fn add_user_groups_returns_err_when_user_does_not_exist() -> Result<(), sq
 #[actix_rt::test]
 async fn get_groups_by_user_id_returns_users_groups() -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("candice"),
-        email: randomize_string("candice@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("candice", "candice@email.com", "111-222-3344");
     let group = randomize_string("vendor");
 
     {
@@ -164,12 +144,7 @@ async fn delete_by_user_id_returns_0_when_user_id_does_not_exist() -> () {
 #[actix_rt::test]
 async fn delete_by_user_id_returns_number_of_rows_deleted() -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("donald"),
-        email: randomize_string("donald@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("donald", "donald@email.com", "111-222-3344");
     let group = randomize_string("customer");
 
     {
@@ -203,12 +178,7 @@ async fn delete_by_group_id_returns_0_when_group_id_does_not_exist() -> () {
 #[actix_rt::test]
 async fn delete_by_group_id_returns_number_of_rows_deleted() -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("emily"),
-        email: randomize_string("emily@email.com"),
-        groups: Vec::with_capacity(0),
-    };
+    let user = User::new("emily", "emily@email.com", "111-222-3344");
     let group = randomize_string("executive");
 
     {
@@ -236,12 +206,7 @@ async fn delete_by_group_id_returns_number_of_rows_deleted() -> Result<(), sqlx:
 async fn update_user_groups_deletes_rows_when_users_group_vec_is_empty(
 ) -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("frank"),
-        email: randomize_string("frank@email.com"),
-        groups: vec![],
-    };
+    let user = User::new("frank", "frank@email.com", "111-222-3344");
 
     let group_name = randomize_string("faculty");
     {
@@ -271,12 +236,7 @@ async fn update_user_groups_deletes_rows_when_users_group_vec_is_empty(
 async fn update_user_groups_returns_deleted_plus_added_rows_when_groups_is_not_empty(
 ) -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
-    let mut user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("george"),
-        email: randomize_string("george@email.com"),
-        groups: vec![],
-    };
+    let mut user = User::new("frank", "frank@email.com", "111-222-3344");
 
     let group_names = vec![randomize_string("general"), randomize_string("gossiper")];
 

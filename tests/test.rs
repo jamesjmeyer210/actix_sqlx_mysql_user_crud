@@ -6,8 +6,12 @@ fn randomize_string(input: &'static str) -> String {
 }
 
 async fn init_db_context() -> Database<'static> {
-    //let config = Config::from_file("test_resource/config.test.json");
-    Database::new("sqlite::memory:").await
+    let db = Database::new("sqlite::memory:").await;
+    let x = db.migrate().await;
+    if x.is_err() {
+        panic!("{}", x.unwrap_err().to_string())
+    }
+    db
 }
 
 #[cfg(test)]
