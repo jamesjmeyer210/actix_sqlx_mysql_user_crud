@@ -2,7 +2,7 @@ use super::{init_app_state, randomize_string};
 use actix_web::{http, test, App};
 use sqlx;
 use sqlx_user_crud::controller;
-use sqlx_user_crud::controller::group_controller::RoleUpdate;
+use sqlx_user_crud::controller::role_controller::RoleUpdate;
 
 #[actix_rt::test]
 async fn get_group_returns_404_when_not_found() -> () {

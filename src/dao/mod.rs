@@ -4,6 +4,7 @@ pub mod db_context;
 mod role_dao;
 mod user_dao;
 mod user_to_role_dao;
+mod realm_dao;
 
 pub type Database<'c> = db_context::Database<'c>;
 pub type Table<'c, T> = db_context::Table<'c, T>;

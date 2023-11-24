@@ -4,6 +4,7 @@ use std::marker::PhantomData;
 use std::sync::Arc;
 use sqlx::migrate::MigrateError;
 use sqlx::sqlite::SqliteRow;
+use crate::model::Realm;
 
 pub struct Table<'c, T>
 where
@@ -57,6 +58,7 @@ where
 }
 
 pub struct Database<'c> {
+    pub realms: Arc<Table<'c, Realm>>,
     pub roles: Arc<Table<'c, Role>>,
     pub users: Arc<Table<'c, User>>,
     pub users_to_groups: Arc<JoinTable<'c, User, Role>>,
@@ -69,6 +71,7 @@ impl<'a> Database<'a> {
         let pool = Arc::new(connection);
 
         Database {
+            realms: Arc::from(Table::new(pool.clone())),
             roles: Arc::from(Table::new(pool.clone())),
             users: Arc::from(Table::new(pool.clone())),
             users_to_groups: Arc::from(JoinTable::new(pool.clone())),

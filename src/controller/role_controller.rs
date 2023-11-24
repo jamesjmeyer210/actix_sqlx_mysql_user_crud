@@ -29,22 +29,36 @@ async fn get_role_by_id(
     }
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct RoleAdd {
+    pub role_name: String,
+    pub realm_name: String,
+    pub max: Option<i32>,
+}
+
 #[post("/role")]
 async fn post_role(
-    group: web::Json<String>,
+    role: web::Json<RoleAdd>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
-    log_request("POST: /group", &app_state.connections);
+    log_request("POST: /role", &app_state.connections);
 
-    let max: Option<i32> = None;
-    let x = app_state.context.roles.add_role(group.as_str(), &max).await;
+    let realm = app_state.context.realms
+        .get_realm_by_name(role.realm_name.as_str())
+        .await;
+    if realm.is_err() {
+        return HttpResponse::NotFound().finish();
+    }
+    let realm = realm.unwrap();
+
+    let x = app_state.context.roles.add_role(&realm, role.realm_name.as_str(), &role.max).await;
 
     match x {
         Ok(_) => {
             let group = app_state
                 .context
                 .roles
-                .get_role_by_name(group.as_str())
+                .get_role_by_name(role.role_name.as_str())
                 .await;
 
             match group {

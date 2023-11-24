@@ -1,3 +1,4 @@
+use crate::model::Realm;
 use super::Role;
 use super::Table;
 
@@ -28,15 +29,16 @@ impl<'c> Table<'c, Role> {
         .await
     }
 
-    pub async fn add_role(&self, name: &str, max: &Option<i32>) -> Result<u64, sqlx::Error> {
+    pub async fn add_role(&self, realm: &Realm, name: &str, max: &Option<i32>) -> Result<u64, sqlx::Error> {
         sqlx::query(
             r#"
-            INSERT INTO `roles` (`name`, `max`)
-            VALUES (?, ?)
+            INSERT INTO `roles` (`name`, `max`, `realm_id`)
+            VALUES (?, ?, ?)
         "#,
         )
         .bind(name)
         .bind(max)
+        .bind(realm.id)
         .execute(&*self.pool)
         .await
         .map(|x|x.rows_affected())

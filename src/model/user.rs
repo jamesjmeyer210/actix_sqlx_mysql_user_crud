@@ -4,7 +4,7 @@ use sqlx::{FromRow, Row};
 use sqlx::sqlite::SqliteRow;
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct User {
     pub id: String,
     pub name: String,
