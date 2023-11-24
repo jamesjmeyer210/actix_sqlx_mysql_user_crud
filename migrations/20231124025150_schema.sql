@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `roles`
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     name TEXT NOT NULL UNIQUE,
-    max INTEGER NOT NULL NULL,
+    max INTEGER,
     realm_id INTEGER NOT NULL,
     created_on_utc TEXT NOT NULL,
     FOREIGN KEY(realm_id) REFERENCES realms(id)

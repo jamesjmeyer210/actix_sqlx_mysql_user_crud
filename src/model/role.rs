@@ -19,3 +19,13 @@ impl<'c> FromRow<'c, SqliteRow> for Role {
         })
     }
 }
+
+impl From<&'static str> for Role {
+    fn from(role: &'static str) -> Self {
+        Role {
+            id: 0,
+            max: None,
+            name: role.to_string()
+        }
+    }
+}
