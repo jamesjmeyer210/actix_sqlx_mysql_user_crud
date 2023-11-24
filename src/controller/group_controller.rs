@@ -19,7 +19,7 @@ async fn get_role_by_id(
 
     let x = app_state
         .context
-        .groups
+        .roles
         .get_role_by_id(group_id.into_inner())
         .await;
 
@@ -37,13 +37,13 @@ async fn post_role(
     log_request("POST: /group", &app_state.connections);
 
     let max: Option<i32> = None;
-    let x = app_state.context.groups.add_role(group.as_str(), &max).await;
+    let x = app_state.context.roles.add_role(group.as_str(), &max).await;
 
     match x {
         Ok(_) => {
             let group = app_state
                 .context
-                .groups
+                .roles
                 .get_role_by_name(group.as_str())
                 .await;
 
@@ -71,7 +71,7 @@ async fn patch_role_by_name(
 
     let x = app_state
         .context
-        .groups
+        .roles
         .update_role(&update.old, &update.new)
         .await;
 
@@ -88,7 +88,7 @@ async fn delete_role_by_name(
 ) -> impl Responder {
     log_request("DELETE: /group", &app_state.connections);
 
-    let x = app_state.context.groups.delete_role(name.as_str()).await;
+    let x = app_state.context.roles.delete_role(name.as_str()).await;
 
     match x {
         Err(e) => HttpResponse::InternalServerError().body(format!("Error: {}", e)),

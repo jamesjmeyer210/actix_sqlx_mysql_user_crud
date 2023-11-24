@@ -2,6 +2,7 @@ use super::{Role, User};
 use sqlx::{FromRow, SqlitePool};
 use std::marker::PhantomData;
 use std::sync::Arc;
+use sqlx::migrate::MigrateError;
 use sqlx::sqlite::SqliteRow;
 
 pub struct Table<'c, T>
@@ -56,20 +57,27 @@ where
 }
 
 pub struct Database<'c> {
-    pub groups: Arc<Table<'c, Role>>,
+    pub roles: Arc<Table<'c, Role>>,
     pub users: Arc<Table<'c, User>>,
     pub users_to_groups: Arc<JoinTable<'c, User, Role>>,
+    _pool: Arc<SqlitePool>,
 }
 
 impl<'a> Database<'a> {
-    pub async fn new(sql_url: &String) -> Database<'a> {
+    pub async fn new(sql_url: &str) -> Database<'a> {
         let connection = SqlitePool::connect(&sql_url).await.unwrap();
         let pool = Arc::new(connection);
 
         Database {
-            groups: Arc::from(Table::new(pool.clone())),
+            roles: Arc::from(Table::new(pool.clone())),
             users: Arc::from(Table::new(pool.clone())),
             users_to_groups: Arc::from(JoinTable::new(pool.clone())),
+            _pool: pool
         }
+    }
+
+    pub async fn migrate(&self) -> Result<(), MigrateError>
+    {
+        sqlx::migrate!().run(&*self._pool).await
     }
 }

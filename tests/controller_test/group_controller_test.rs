@@ -53,7 +53,7 @@ async fn patch_group_returns_204_when_group_is_patched() -> Result<(), sqlx::Err
     .await;
 
     let group_name = randomize_string("administrator");
-    let _ = app_state.context.groups.add_role(&group_name).await?;
+    let _ = app_state.context.roles.add_role(&group_name, &None).await?;
 
     let update = RoleUpdate {
         old: group_name,
@@ -81,7 +81,7 @@ async fn delete_group_returns_200_when_group_is_deleted() -> Result<(), sqlx::Er
     .await;
 
     let group_name = randomize_string("developers");
-    let _ = app_state.context.groups.add_role(&group_name).await?;
+    let _ = app_state.context.roles.add_role(&group_name, &None).await?;
 
     let req = test::TestRequest::delete()
         .uri(&format!("/group/{0}", group_name))
