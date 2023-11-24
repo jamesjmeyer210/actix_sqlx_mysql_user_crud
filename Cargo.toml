@@ -13,3 +13,5 @@ serde = "1.0.185"
 serde_json = "1.0.105"
 uuid = { version = "1.4.1", features = ["serde", "v4"] }
 chrono = { version = "0.4.31", features = ["serde"] }
+log4rs = { version = "1.2.0" }
+log = "0.4.20"
