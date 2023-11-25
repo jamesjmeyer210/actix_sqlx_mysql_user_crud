@@ -50,6 +50,10 @@ impl<'c> FromRow<'c, SqliteRow> for User {
 impl User {
     pub fn new(name: &str, email: &str, password: &str) -> Self
     {
+        /*let hashed = bcrypt::hash(password, bcrypt::DEFAULT_COST);
+        let hashed = hashed.unwrap();*/
+
+
         User {
             id: Uuid::new_v4().to_string(),
             name: name.to_string(),

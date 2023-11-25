@@ -3,6 +3,7 @@ use actix_web::{http, test, App};
 use sqlx;
 use sqlx_user_crud::controller;
 use sqlx_user_crud::controller::role_controller::RoleUpdate;
+use sqlx_user_crud::model::Realm;
 
 #[actix_rt::test]
 async fn get_group_returns_404_when_not_found() -> () {
@@ -10,7 +11,7 @@ async fn get_group_returns_404_when_not_found() -> () {
     let mut app = test::init_service(
         App::new()
             .app_data(app_state.clone())
-            .configure(controller::init_group_controller),
+            .configure(controller::init_role_controller),
     )
     .await;
 
@@ -27,7 +28,7 @@ async fn post_group_returns_204_when_valid_group_is_added() -> () {
     let mut app = test::init_service(
         App::new()
             .app_data(app_state.clone())
-            .configure(controller::init_group_controller),
+            .configure(controller::init_role_controller),
     )
     .await;
 
@@ -48,12 +49,13 @@ async fn patch_group_returns_204_when_group_is_patched() -> Result<(), sqlx::Err
     let mut app = test::init_service(
         App::new()
             .app_data(app_state.clone())
-            .configure(controller::init_group_controller),
+            .configure(controller::init_role_controller),
     )
     .await;
 
+    let realm = Realm::default();
     let group_name = randomize_string("administrator");
-    let _ = app_state.context.roles.add_role(&group_name, &None).await?;
+    let _ = app_state.context.roles.add_role(&realm, &group_name, &None).await?;
 
     let update = RoleUpdate {
         old: group_name,
@@ -76,12 +78,12 @@ async fn delete_group_returns_200_when_group_is_deleted() -> Result<(), sqlx::Er
     let mut app = test::init_service(
         App::new()
             .app_data(app_state.clone())
-            .configure(controller::init_group_controller),
+            .configure(controller::init_role_controller),
     )
     .await;
 
     let group_name = randomize_string("developers");
-    let _ = app_state.context.roles.add_role(&group_name, &None).await?;
+    let _ = app_state.context.roles.add_role(&Realm::default(), &group_name, &None).await?;
 
     let req = test::TestRequest::delete()
         .uri(&format!("/group/{0}", group_name))

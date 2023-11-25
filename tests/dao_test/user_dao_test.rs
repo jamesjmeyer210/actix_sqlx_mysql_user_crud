@@ -6,16 +6,7 @@ use uuid::Uuid;
 #[actix_rt::test]
 async fn add_user_returns_1() -> Result<(), sqlx::Error> {
     let db = init_db_context().await;
-    let user = User {
-        id: Uuid::new_v4().to_string(),
-        name: randomize_string("alice"),
-        email: "alice@email.com".as_bytes().to_vec(),
-        email_verified: false,
-        phone: "111-222-3322".as_bytes().to_vec(),
-        phone_verified: false,
-        public_key: Vec::new(),
-        groups: Vec::new(),
-    };
+    let user = User::new("alice", "alice@email.com", "password123");
 
     let result = db.users.add_user(&user).await;
 
