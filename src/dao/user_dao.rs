@@ -22,6 +22,7 @@ impl<'c> Table<'c, User> {
         )
             .bind(&user.id)
             .bind(&user.name)
+            .bind(&user.password)
             .bind(&user.email)
             .bind(&user.email_verified)
             .bind(&user.phone)

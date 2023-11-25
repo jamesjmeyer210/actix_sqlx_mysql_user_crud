@@ -91,6 +91,6 @@ impl<'a> Database<'a> {
         }
 
         let realm = realm.unwrap();
-
+        Ok(())
     }
 }

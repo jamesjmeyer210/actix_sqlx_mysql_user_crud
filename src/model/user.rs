@@ -13,7 +13,7 @@ pub struct User {
     pub email: Vec<u8>,
     pub password: Vec<u8>,
     pub email_verified: bool,
-    pub phone: Vec<u8>,
+    pub phone: Option<Vec<u8>>,
     pub phone_verified: bool,
     pub public_key: Vec<u8>,
     pub groups: Vec<Role>,
@@ -33,28 +33,30 @@ impl<'c> FromRow<'c, SqliteRow> for User {
         Ok(User {
             id: row.get(0),
             name: row.get(1),
-            email: row.get(2),
-            email_verified: row.get(3),
-            phone: row.get(4),
-            phone_verified: row.get(5),
-            public_key: row.get(6),
+            password: row.get(2),
+            email: row.get(3),
+            email_verified: row.get(4),
+            phone: row.get(5),
+            phone_verified: row.get(6),
+            public_key: row.get(7),
             groups: Vec::with_capacity(0),
             realms: Vec::with_capacity(0),
-            created_on_utc: row.get(7),
-            deleted_on_utc: row.get(8)
+            created_on_utc: row.get(8),
+            deleted_on_utc: row.get(9)
         })
     }
 }
 
 impl User {
-    pub fn new(name: &str, email: &str, phone: &str) -> Self
+    pub fn new(name: &str, email: &str, password: &str) -> Self
     {
         User {
             id: Uuid::new_v4().to_string(),
             name: name.to_string(),
+            password: password.as_bytes().to_vec(),
             email: email.as_bytes().to_vec(),
             email_verified: false,
-            phone: phone.as_bytes().to_vec(),
+            phone: None,
             phone_verified: false,
             public_key: Vec::new(),
             groups: Vec::new(),
