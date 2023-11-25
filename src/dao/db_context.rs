@@ -83,4 +83,14 @@ impl<'a> Database<'a> {
     {
         sqlx::migrate!().run(&*self._pool).await
     }
+
+    pub async fn initialize(&self) -> Result<(), sqlx::Error> {
+        let realm = self.realms.add_default_realm().await?;
+        if realm.is_none() {
+            return Ok(());
+        }
+
+        let realm = realm.unwrap();
+
+    }
 }

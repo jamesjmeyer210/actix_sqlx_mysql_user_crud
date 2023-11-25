@@ -13,6 +13,18 @@ pub struct Realm {
     pub users: Vec<User>,
 }
 
+impl Default for Realm {
+    fn default() -> Self {
+        Realm {
+            id: 0,
+            name: String::from("master"),
+            created_on_utc: Utc::now(),
+            roles: vec![Role::default()],
+            users: vec![User::default()]
+        }
+    }
+}
+
 impl From<&str> for Realm {
     fn from(name: &str) -> Self {
         Realm {

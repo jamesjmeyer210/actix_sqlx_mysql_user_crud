@@ -1,19 +1,31 @@
+use chrono::{DateTime, Utc};
 use super::Role;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, Row};
 use sqlx::sqlite::SqliteRow;
 use uuid::Uuid;
+use crate::model::realm::Realm;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct User {
     pub id: String,
     pub name: String,
     pub email: Vec<u8>,
+    pub password: Vec<u8>,
     pub email_verified: bool,
     pub phone: Vec<u8>,
     pub phone_verified: bool,
     pub public_key: Vec<u8>,
     pub groups: Vec<Role>,
+    pub realms: Vec<Realm>,
+    pub created_on_utc: DateTime<Utc>,
+    pub deleted_on_utc: Option<DateTime<Utc>>
+}
+
+impl Default for User {
+    fn default() -> Self {
+        User::new("root", "root@localhost", "")
+    }
 }
 
 impl<'c> FromRow<'c, SqliteRow> for User {
@@ -27,6 +39,9 @@ impl<'c> FromRow<'c, SqliteRow> for User {
             phone_verified: row.get(5),
             public_key: row.get(6),
             groups: Vec::with_capacity(0),
+            realms: Vec::with_capacity(0),
+            created_on_utc: row.get(7),
+            deleted_on_utc: row.get(8)
         })
     }
 }
@@ -43,6 +58,9 @@ impl User {
             phone_verified: false,
             public_key: Vec::new(),
             groups: Vec::new(),
+            realms: Vec::new(),
+            created_on_utc: Utc::now(),
+            deleted_on_utc: None,
         }
     }
 }

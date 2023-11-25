@@ -10,6 +10,16 @@ pub struct Role {
     pub name: String,
 }
 
+impl Default for Role {
+    fn default() -> Self {
+        Role {
+            id: 0,
+            max: Some(1),
+            name: String::from("root"),
+        }
+    }
+}
+
 impl<'c> FromRow<'c, SqliteRow> for Role {
     fn from_row(row: &SqliteRow) -> Result<Self, sqlx::Error> {
         Ok(Role {

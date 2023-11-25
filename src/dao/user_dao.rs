@@ -17,15 +17,21 @@ impl<'c> Table<'c, User> {
     pub async fn add_user(&self, user: &User) -> Result<u64, sqlx::Error> {
         sqlx::query(
             r#"
-            INSERT INTO users (`id`, `name`, `email`)
-            VALUES(?, ?, ?)"#,
+            INSERT INTO users (`id`, `name`, `password`, `email`, `email_verified`, `phone`, `phone_verified`, `public_key`, `created_on_utc`, `deleted_on_utc`)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
         )
-        .bind(&user.id)
-        .bind(&user.name)
-        .bind(&user.email)
-        .execute(&*self.pool)
-        .await
-        .map(|x|x.rows_affected())
+            .bind(&user.id)
+            .bind(&user.name)
+            .bind(&user.email)
+            .bind(&user.email_verified)
+            .bind(&user.phone)
+            .bind(&user.phone_verified)
+            .bind(&user.public_key)
+            .bind(&user.created_on_utc)
+            .bind(&user.deleted_on_utc)
+            .execute(&*self.pool)
+            .await
+            .map(|x|x.rows_affected())
     }
 
     pub async fn update_user(&self, user: &User) -> Result<u64, sqlx::Error> {

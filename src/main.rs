@@ -36,8 +36,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(app_state.clone())
             .configure(controller::init_index_controller)
+            .configure(controller::init_realm_controller)
             .configure(controller::init_user_controller)
-            .configure(controller::init_group_controller)
+            .configure(controller::init_role_controller)
     })
     .bind(config.get_app_url())?;
     info!("Listening on: {0}", config.get_app_url());
