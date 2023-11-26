@@ -4,23 +4,23 @@ use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 
 pub fn init(cfg: &mut web::ServiceConfig) {
-    cfg.service(get_group_by_id);
-    cfg.service(post_group);
-    cfg.service(patch_group_by_name);
-    cfg.service(delete_group_by_name);
+    cfg.service(get_role_by_id);
+    cfg.service(post_role);
+    cfg.service(patch_role_by_name);
+    cfg.service(delete_role_by_name);
 }
 
-#[get("/group/{id}")]
-async fn get_group_by_id(
-    group_id: web::Path<u64>,
+#[get("/role/{id}")]
+async fn get_role_by_id(
+    group_id: web::Path<i32>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("GET: /group", &app_state.connections);
 
     let x = app_state
         .context
-        .groups
-        .get_group_by_id(group_id.into_inner())
+        .roles
+        .get_role_by_id(group_id.into_inner())
         .await;
 
     match x {
@@ -29,21 +29,36 @@ async fn get_group_by_id(
     }
 }
 
-#[post("/group")]
-async fn post_group(
-    group: web::Json<String>,
+#[derive(Deserialize, Serialize)]
+pub struct RoleAdd {
+    pub role_name: String,
+    pub realm_name: String,
+    pub max: Option<i32>,
+}
+
+#[post("/role")]
+async fn post_role(
+    role: web::Json<RoleAdd>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
-    log_request("POST: /group", &app_state.connections);
+    log_request("POST: /role", &app_state.connections);
 
-    let x = app_state.context.groups.add_group(group.as_str()).await;
+    let realm = app_state.context.realms
+        .get_realm_by_name(role.realm_name.as_str())
+        .await;
+    if realm.is_err() {
+        return HttpResponse::NotFound().finish();
+    }
+    let realm = realm.unwrap();
+
+    let x = app_state.context.roles.add_role(&realm, role.realm_name.as_str(), &role.max).await;
 
     match x {
         Ok(_) => {
             let group = app_state
                 .context
-                .groups
-                .get_group_by_name(group.as_str())
+                .roles
+                .get_role_by_name(role.role_name.as_str())
                 .await;
 
             match group {
@@ -56,22 +71,22 @@ async fn post_group(
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct GroupUpdate {
+pub struct RoleUpdate {
     pub old: String,
     pub new: String,
 }
 
-#[patch("/group")]
-async fn patch_group_by_name(
-    update: web::Json<GroupUpdate>,
+#[patch("/role")]
+async fn patch_role_by_name(
+    update: web::Json<RoleUpdate>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("PATCH: /user", &app_state.connections);
 
     let x = app_state
         .context
-        .groups
-        .update_group(&update.old, &update.new)
+        .roles
+        .update_role(&update.old, &update.new)
         .await;
 
     match x {
@@ -80,14 +95,14 @@ async fn patch_group_by_name(
     }
 }
 
-#[delete("/group/{name}")]
-async fn delete_group_by_name(
+#[delete("/role/{name}")]
+async fn delete_role_by_name(
     name: web::Path<String>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     log_request("DELETE: /group", &app_state.connections);
 
-    let x = app_state.context.groups.delete_group(name.as_str()).await;
+    let x = app_state.context.roles.delete_role(name.as_str()).await;
 
     match x {
         Err(e) => HttpResponse::InternalServerError().body(format!("Error: {}", e)),

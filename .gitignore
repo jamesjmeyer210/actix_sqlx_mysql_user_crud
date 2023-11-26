@@ -4,3 +4,6 @@
 # Rust
 Cargo.lock
 target/
+
+# SQL
+*.sqlite

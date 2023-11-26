@@ -1,5 +1,11 @@
-mod group;
+mod role;
 mod user;
+mod realm;
+mod count;
+mod password;
 
 pub type User = user::User;
-pub type Group = group::Group;
+pub type Role = role::Role;
+pub type Realm = realm::Realm;
+pub type Count = count::Count;
+pub type Password = password::Password;
