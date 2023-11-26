@@ -1,10 +1,9 @@
-use super::model::{Role, User};
+use super::model::{Group, User};
 
 pub mod db_context;
-mod role_dao;
+mod group_dao;
 mod user_dao;
-mod user_to_role_dao;
-mod realm_dao;
+mod user_to_group_dao;
 
 pub type Database<'c> = db_context::Database<'c>;
 pub type Table<'c, T> = db_context::Table<'c, T>;

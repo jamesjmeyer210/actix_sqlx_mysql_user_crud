@@ -8,6 +8,9 @@ struct AppConfig {
 }
 #[derive(Deserialize)]
 struct DaoConfig {
+    user: String,
+    password: String,
+    address: String,
     database: String,
 }
 #[derive(Deserialize)]
@@ -26,7 +29,10 @@ impl Config {
         format!("{0}:{1}", self.app.url, self.app.port)
     }
 
-    pub fn get_database_url(&self) -> &str {
-        self.dao.database.as_str()
+    pub fn get_database_url(&self) -> String {
+        format!(
+            "mysql://{0}:{1}@{2}/{3}",
+            self.dao.user, self.dao.password, self.dao.address, self.dao.database
+        )
     }
 }
