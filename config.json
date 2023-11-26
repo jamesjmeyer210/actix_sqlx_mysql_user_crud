@@ -5,6 +5,9 @@
   },
   "dao":
   {
-    "database": "sqlite:./db.sqlite"
+    "user": "sqlx_user_crud",
+    "password": "rust_is_the_future",
+    "address": "localhost",
+    "database": "actix_user_crud"
   }
 }

@@ -2,7 +2,7 @@ use super::init_app_state;
 use crate::randomize_string;
 use actix_web::{http, test, App};
 use sqlx_user_crud::controller;
-use sqlx_user_crud::model::{User, Realm};
+use sqlx_user_crud::model::User;
 use uuid::Uuid;
 
 #[actix_rt::test]
@@ -31,7 +31,12 @@ async fn get_user_returns_200_when_user_exists() -> Result<(), sqlx::Error> {
     )
     .await;
 
-    let user = User::new("alice", "alice@email.com", "password123");
+    let user = User {
+        id: Uuid::new_v4().to_string(),
+        name: randomize_string("alice"),
+        email: randomize_string("alice@email.com"),
+        groups: Vec::new(),
+    };
 
     let _ = app_state.context.users.add_user(&user).await?;
 
@@ -54,7 +59,12 @@ async fn post_user_returns_202_when_user_is_valid() -> () {
     )
     .await;
 
-    let user = User::new("bob", "bob@email.com", "password123");
+    let user = User {
+        id: Uuid::new_v4().to_string(),
+        name: randomize_string("bob"),
+        email: randomize_string("bob@email.com"),
+        groups: Vec::new(),
+    };
 
     let req = test::TestRequest::post()
         .uri("/user")
@@ -77,10 +87,15 @@ async fn post_user_returns_202_when_user_and_groups_are_valid() -> Result<(), sq
     .await;
 
     let group = randomize_string("custodians");
-    let _ = app_state.context.roles.add_role(&Realm::default(),&group, &None).await?;
-    let group = app_state.context.roles.get_role_by_name(&group).await?;
+    let _ = app_state.context.groups.add_group(&group).await?;
+    let group = app_state.context.groups.get_group_by_name(&group).await?;
 
-    let user = User::new("alice", "alice@email.com", "password123");
+    let user = User {
+        id: Uuid::new_v4().to_string(),
+        name: randomize_string("bob"),
+        email: randomize_string("bob@email.com"),
+        groups: vec![group],
+    };
 
     let req = test::TestRequest::post()
         .uri("/user")
@@ -102,7 +117,12 @@ async fn post_user_returns_500_when_user_already_exists() -> Result<(), sqlx::Er
     )
     .await;
 
-    let user = User::new("charlie", "charlie@email.com", "password123");
+    let user = User {
+        id: Uuid::new_v4().to_string(),
+        name: randomize_string("charlie"),
+        email: randomize_string("charlie@email.com"),
+        groups: vec![],
+    };
 
     let _ = app_state.context.users.add_user(&user).await?;
 
@@ -126,7 +146,12 @@ async fn patch_user_returns_404_when_user_does_not_exist() -> () {
     )
     .await;
 
-    let user = User::new("alice", "alice@email.com", "password123");
+    let user = User {
+        id: Uuid::new_v4().to_string(),
+        name: randomize_string("edison"),
+        email: randomize_string("edison@email.com"),
+        groups: vec![],
+    };
 
     let req = test::TestRequest::patch()
         .uri("/user")
@@ -147,11 +172,15 @@ async fn patch_user_returns_202_when_user_exists() -> Result<(), sqlx::Error> {
     )
     .await;
 
-    let mut user = User::new("alice", "alice@email.com", "password123");
-
+    let mut user = User {
+        id: Uuid::new_v4().to_string(),
+        name: randomize_string("fred"),
+        email: randomize_string("fred@email.com"),
+        groups: vec![],
+    };
     let _ = app_state.context.users.add_user(&user).await?;
 
-    user.name = "fredrick".to_string();
+    user.name = randomize_string("fredrick");
     let req = test::TestRequest::patch()
         .uri("/user")
         .set_json(&user)
@@ -192,7 +221,12 @@ async fn delete_user_returns_200_when_user_exists() -> Result<(), sqlx::Error> {
     )
     .await;
 
-    let user = User::new("alice", "alice@email.com", "password123");
+    let user = User {
+        id: Uuid::new_v4().to_string(),
+        name: randomize_string("gina"),
+        email: randomize_string("gina@email.com"),
+        groups: vec![],
+    };
     let _ = app_state.context.users.add_user(&user).await?;
 
     let req = test::TestRequest::delete()
